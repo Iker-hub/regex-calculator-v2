@@ -11,7 +11,15 @@ function init() {
   const routes = require("../routes/routes");
   app.use("/", routes);
 
-  app.listen(3000);
+  const https = require("https");
+  const fs = require("fs");
+  https
+    .createServer({
+      requestCert: true,
+      rejectUnauthorized: false,
+      ca: fs.readFileSync("ca.crt"),
+    })
+    .listen(3000);
 }
 
 exports.init = init;

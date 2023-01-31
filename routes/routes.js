@@ -1,28 +1,13 @@
-require("dotenv").config();
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
-const jwt = require("jsonwebtoken");
 
 router.post("/login", async (req, res) => {
-  let user = req.headers.user;
-  let pass = req.headers.pass;
-  if ((await User.findOne({ user: user, pass: pass }).exec()) == null) {
-    res.json({
-      data: null,
-    });
-  } else {
-    const token = jwt.sign(
-      {
-        user: user,
-        pass: pass,
-      },
-      process.env.PRIVATE_KEY
-    );
-    res.header("auth-token", token).json({
-      data: { token },
-    });
+  if (!req.client.authorized) {
+    return res
+      .status(401)
+      .send("Autenticación de certificado de cliente no válida");
   }
+  return next();
 });
 
 module.exports = router;
