@@ -1,4 +1,4 @@
-import Queue from "bull";
+//import Queue from "bull";
 
 function init() {
   var WebSocketServer = require("ws").Server;
@@ -6,7 +6,7 @@ function init() {
   const jwt = require("jsonwebtoken");
   var parser = require("../rules/rules");
 
-  interface IRegex {
+  /*interface IRegex {
     regex: string;
   }
 
@@ -20,7 +20,7 @@ function init() {
     await Promise.all(promises);
   };
 
-  void controller();
+  void controller();*/
 
   var wss = new WebSocketServer({ port: 3030 });
   wss.on("connection", function connection(ws) {
