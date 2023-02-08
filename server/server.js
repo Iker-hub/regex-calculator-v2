@@ -14,11 +14,13 @@ function init() {
   const https = require("https");
   const fs = require("fs");
   https
-    .createServer({
-      requestCert: true,
-      rejectUnauthorized: false,
-      ca: fs.readFileSync("ca.crt"),
-    })
+    .createServer(
+      {
+        key: fs.readFileSync("./keys/rootSSL.pem"),
+        cert: fs.readFileSync("./keys/rootSSL.pem"),
+      },
+      app
+    )
     .listen(3000);
 }
 
