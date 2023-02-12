@@ -16,8 +16,11 @@ function init() {
   https
     .createServer(
       {
-        key: fs.readFileSync("./keys/rootSSL.pem"),
-        cert: fs.readFileSync("./keys/rootSSL.pem"),
+        key: fs.readFileSync("./keys/server_key.pem"),
+        cert: fs.readFileSync("./keys/server_cert.pem"),
+        ca: [fs.readFileSync("./keys/server_cert.pem")],
+        requestCert: true,
+        rejectUnauthorized: false,
       },
       app
     )

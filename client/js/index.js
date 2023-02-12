@@ -1,9 +1,4 @@
-import { readFileSync } from "fs";
-import { request } from "https";
-
 let loginContainer = document.getElementById("loginContainer");
-let inUser = document.getElementById("inUser");
-let inPass = document.getElementById("inPass");
 let btLogin = document.getElementById("btLogin");
 
 let regexContainer = document.getElementById("regexContainer");
@@ -16,6 +11,11 @@ let alertContainerRegex = document.getElementById("alertContainerRegex");
 
 let loaderLogin = document.getElementById("spLoaderLogin");
 let loaderRegex = document.getElementById("spLoaderRegex");
+
+const MAX_LONG = -3.590768;
+const MIN_LONG = -3.592621;
+const MIN_LATI = 37.160317;
+const MAX_LATI = 37.161525;
 
 const proxy = new Proxy(
   {
@@ -38,54 +38,65 @@ const proxy = new Proxy(
 );
 
 btLogin.addEventListener("click", () => {
-  let user = inUser.value;
-  let pass = inPass.value;
-  alertContainerLogin.innerHTML = "";
-  if (user.value == "" || pass.value == "") {
-    alertContainerLogin.innerHTML = "Introduce tu usuario y contraseña";
-  } else {
-    proxy.login;
-  }
+  checkPosition();
 });
 
-function login() {
-  const req = request(
-    {
-      hostname: "", // TODO server name
-      port: 3000,
-      path: "http://localhost:3000/login",
-      method: "POST",
-      cert: readFileSync("client.crt"),
-      key: readFileSync("client.key"),
-      ca: readFileSync("ca.crt"),
+function checkPosition() {
+  loaderLogin.toggleAttribute("hidden");
+  navigator.geolocation.getCurrentPosition(
+    function (pos) {
+      loaderLogin.toggleAttribute("hidden");
+      if (
+        MIN_LATI < pos.coords.latitude < MAX_LATI &&
+        MIN_LONG > pos.coords.longitude > MAX_LONG
+      ) {
+        proxy.login;
+      } else {
+        alertContainerLogin.innerHTML = "Tu ubicación no está permitida";
+      }
     },
-    (res) => {
-      res.on("data", function (data) {
-        if (data.data != null) {
-          // TODO catch
-          token = data.data;
-          loginContainer.classList.toggle("display-none");
-          regexContainer.classList.toggle("display-none");
-          taRegex.value = "";
-          connectToWebSocket({
-            ip: "localhost",
-            port: "3030",
-          });
-        } else {
-          alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
-        }
-      });
+    function (err) {
+      loaderLogin.toggleAttribute("hidden");
+      console.log(`Error ${err.code} : ${err.message}`);
+      if (err.code == 1) {
+        alertContainerLogin.innerHTML = "Acceso a ubicación denegado";
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 0,
     }
   );
+}
 
-  req.end();
+function login() {
+  const url = "http://localhost:3000/login";
+  const options = {
+    method: "POST",
+  };
+  fetch(url, options)
+    .then((data) => {
+      if (data.data != null) {
+        loginContainer.classList.toggle("display-none");
+        regexContainer.classList.toggle("display-none");
+        taRegex.value = "";
+        connectToWebSocket({
+          ip: "localhost",
+          port: "3030",
+        });
+      } else {
+        alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
+      }
+    })
+    .catch((err) => console.error("error:" + err));
 }
 
 function connectToWebSocket(config) {
   socket = new WebSocket("ws://" + config.ip + ":" + config.port);
 
   socket.onmessage = (event) => {
-    loader.toggleAttribute("hidden");
+    loaderRegex.toggleAttribute("hidden");
     taRegex.value += `${JSON.parse(event.data).result}\n\n`;
     if (cont == 5) {
       btRegex.classList.toggle("display-none");
@@ -119,8 +130,8 @@ btRegex.addEventListener("click", () => {
   if (regex == "") {
     alertContainerRegex.innerHTML = "Introduce una regex";
   } else {
-    if (loader.hasAttribute("hidden")) {
-      loader.toggleAttribute("hidden");
+    if (loaderRegex.hasAttribute("hidden")) {
+      loaderRegex.toggleAttribute("hidden");
     }
     proxy.regex = regex;
     cont++;
