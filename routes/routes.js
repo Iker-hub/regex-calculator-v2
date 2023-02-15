@@ -2,23 +2,17 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.sendFile(__dirname + "/client/index.html");
+  res.send("We are on home");
 });
 
-router.post("/login", async (req, res) => {
-  const cert = req.socket.getPeerCertificate();
+router.get("/login", async (req, res) => {
   if (req.client.authorized) {
-    res.send(`Hola ${cert.subject.CN}!`);
-  } else if (cert.subject) {
-    res
-      .status(403)
-      .send(`Lo sentimos ${cert.subject.CN}, tu certificado no es válido`);
+    res.status(200).json(`Bienvenido!`);
   } else {
-    res
-      .status(401)
-      .send(`Lo sentimos, pero necesitas un certificado para iniciar sesión`);
+    res.status(401).json({
+      data: `Lo sentimos, pero necesitas un certificado válido para iniciar sesión`,
+    });
   }
-  return next();
 });
 
 module.exports = router;

@@ -71,22 +71,26 @@ function checkPosition() {
 }
 
 function login() {
-  const url = "http://localhost:3000/login";
+  const url = "https://localhost:3000/login";
   const options = {
-    method: "POST",
+    method: "GET",
   };
   fetch(url, options)
     .then((data) => {
-      if (data.data != null) {
-        loginContainer.classList.toggle("display-none");
-        regexContainer.classList.toggle("display-none");
-        taRegex.value = "";
-        connectToWebSocket({
-          ip: "localhost",
-          port: "3030",
-        });
-      } else {
-        alertContainerLogin.innerHTML = "Usuario o contraseña no válidos";
+      switch (data.status) {
+        case 200:
+          loginContainer.classList.toggle("display-none");
+          regexContainer.classList.toggle("display-none");
+          taRegex.value = "";
+          connectToWebSocket({
+            ip: "localhost",
+            port: "3030",
+          });
+          break;
+        case 401:
+          alertContainerLogin.innerHTML =
+            "Lo sentimos, pero necesitas un certificado válido para iniciar sesión";
+          break;
       }
     })
     .catch((err) => console.error("error:" + err));

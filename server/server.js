@@ -16,15 +16,17 @@ function init() {
   https
     .createServer(
       {
-        key: fs.readFileSync("./keys/server_key.pem"),
-        cert: fs.readFileSync("./keys/server_cert.pem"),
-        ca: [fs.readFileSync("./keys/server_cert.pem")],
+        key: fs.readFileSync("./keys/client-1.local.key"),
+        cert: fs.readFileSync("./keys/localhost.crt"),
         requestCert: true,
         rejectUnauthorized: false,
+        ca: [fs.readFileSync("./keys/rootSSL.pem")],
       },
       app
     )
     .listen(3000);
+
+  console.log("Server running...");
 }
 
 exports.init = init;
