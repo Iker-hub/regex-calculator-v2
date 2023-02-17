@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.send("We are on home");
-});
+const path = require("path");
 
 router.get("/login", async (req, res) => {
   if (req.client.authorized) {

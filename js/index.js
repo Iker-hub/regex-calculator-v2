@@ -12,6 +12,11 @@ let alertContainerRegex = document.getElementById("alertContainerRegex");
 let loaderLogin = document.getElementById("spLoaderLogin");
 let loaderRegex = document.getElementById("spLoaderRegex");
 
+let cont = 0;
+
+let socket = null;
+let state = false;
+
 const MAX_LONG = -3.590768;
 const MIN_LONG = -3.592621;
 const MIN_LATI = 37.160317;
@@ -145,7 +150,6 @@ btRegex.addEventListener("click", () => {
 function sendMsgThroughWebSocket(content) {
   socket.send(
     JSON.stringify({
-      token: token,
       content: content,
     })
   );
